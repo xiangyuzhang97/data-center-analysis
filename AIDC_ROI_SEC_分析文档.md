@@ -349,24 +349,122 @@ SEC filings 提供了这个判断的财务证据：CoreWeave 体现高 capex / �
 
 ---
 
-## 8. 下一步数据清单
+## 8. 补充运营口径与模型参数
+
+本节基于用户补充的卖方研究、公司公告和行业资料整理。该部分不等同于 SEC filing，需要在正式引用时标注为 Citi、Morgan Stanley、Goldman Sachs、Jefferies、公司公告等来源口径。它的价值在于补足 SEC 通常不披露的运营变量，例如 MW、PUE、Capex/MW、GPU 折旧年限、项目时间线和合同单价。
+
+### 8.1 四家公司运营对比
+
+| 公司 | 商业模式 | 运营/签约容量口径 | 收益端信号 | 关键模型用途 |
+|---|---|---:|---|---|
+| NBIS | Neocloud GPU-as-a-Service | 签约容量超过 3,500 MW，2026 年底目标超过 4,000 MW；2026Q1 活跃容量约 220 MW | Meta、Microsoft、NVIDIA 相关合作支撑未来收入 | 用于分析“签约 MW 远大于在运 MW”时，time-to-power 对 NPV 的影响 |
+| CRWV | Neocloud GPU-as-a-Service | 活跃 MW 未披露；RPO 约 $99B 的 MW 对应量未披露 | OpenAI、Meta、Microsoft、Anthropic 等大客户合同 | 用于分析高 RPO、高 capex、高债务模式下的融资敏感性 |
+| IREN | 矿场转型垂直 GPU 云 | 全球 secured power portfolio 约 6 GW；Childress 为核心 AI 转型站点 | MSFT 200 MW 合同、NVIDIA 60 MW 合同 | 用于分析 power asset 如何转化为 AI cloud NPV |
+| ORCL | 超大规模 OCI 云平台 | 多 GW 级项目，但 OCI 总 MW 未单独披露 | OpenAI / Stargate、OCI 云需求、GPU 利用率高 | 用于宏观需求和 hyperscaler 资本支出背景 |
+
+### 8.2 可进入模型的关键假设
+
+| 变量 | 补充口径 | 模型含义 |
+|---|---:|---|
+| AI DC 全成本 Capex/MW | 行业估算约 $15M-$25M/MW；IREN GPU cloud 口径约 $40M-$45M/MW | 决定 initial capex 和折旧压力 |
+| Colo Capex/MW | IREN 参考约 $10M-$15M/MW | 可作为 AI cloud 退役后基础设施残值或再出租场景 |
+| BTC mining Capex/MW | IREN 参考约 $1M-$1.5M/MW | 解释矿场转 AI DC 为什么需要大额增量 capex |
+| Power price | IREN Childress 建模约 $0.05/kWh；NBIS 北欧 PPA 价格未公开 | 进入 cash opex 和 EBITDA margin |
+| PUE | NBIS 芬兰 Mäntsälä 设计值约 1.10-1.13；IREN NVIDIA 合同估算约 1.30 | 决定 power cost multiplier |
+| GPU 折旧年限 | NBIS 4 年；CRWV 6 年；IREN 卖方模型约 5 年 | 影响会计利润、设备残值和更新 capex |
+| WACC / 折现率 | 行业参考 8%-10%；IREN 项目 NPV 使用 9% 折现率 | 用于 NPV sensitivity |
+| 合同覆盖 | NBIS、CRWV、IREN 均有大客户长约或战略合作 | 降低收入不确定性，可能降低项目风险溢价 |
+
+### 8.3 IREN 的项目级 ROI 参考价值最高
+
+在四家公司中，IREN 的补充数据最适合直接进入微观项目模型，因为它同时给出了 MW、客户合同、capex、融资和 NPV/IRR 口径。
+
+以 Childress 的 MSFT 合同为例，补充资料给出的口径包括：
+
+- 规模：200 MW，液冷 GB300 GPU。
+- 合同价值：约 $9.7B / 5 年。
+- 结构：约 $1.9B 预付款，加约 $3.65B GPU 融资。
+- 投产时间线：2026 年底首批交付，2027 年完成。
+- 项目回报：无杠杆 IRR 大于 20%，有杠杆 IRR 约 25.4%，NPV @ 9% 约 $881M。
+
+该样本可以作为本文后续量化模型的 base case，因为它天然对应研究目标：
+
+```text
+200 MW power-backed AI capacity
+→ contracted GPU cloud revenue
+→ project-level opex and financing
+→ NPV / IRR
+```
+
+在此基础上可以做三组关键敏感性：
+
+| 情景 | X 变化 | Y 影响 |
+|---|---|---|
+| 建设成本上升 | Capex/MW +10% / +20% | NPV 下降，IRR 回落 |
+| 上线延迟 | Revenue start date 延后 6-12 个月 | 早期 UFCF 消失，NPV 对延迟高度敏感 |
+| 利率上升 | WACC +100-200 bps 或 SOFR 上升 | 折现率和债务成本同时上升，杠杆项目受影响更大 |
+
+### 8.4 NBIS 和 CRWV 更适合做“平台扩张”样本
+
+NBIS 和 CRWV 的共同特征是：合同和融资规模很大，但项目级 MW、PUE、合同单价、站点成本披露不完整。因此它们更适合用来分析平台型 AI cloud 公司的扩张逻辑：
+
+```text
+Large customer contracts / RPO
+→ Financing capacity
+→ Capex acceleration
+→ Future active MW
+→ Revenue ramp
+```
+
+NBIS 的重点是“签约容量和未来站点管线”。补充资料显示其签约容量超过 3,500 MW，而 2026Q1 活跃容量约 220 MW。这个差距说明 NBIS 的估值和 NPV 很大程度依赖未来 capacity ramp，而不是当前收入。
+
+CRWV 的重点是“高 RPO + 高债务 + 高 capex”。SEC 数据已经显示其 FY2025 PPE net 达 $30.557B，Q1 2026 PPE net 进一步增至 $36.424B；补充资料中的约 $99B RPO 可以作为未来收入可见度的运营证据，但模型必须持续跟踪活跃 MW、融资成本和 GPU 折旧假设。
+
+### 8.5 ORCL 更适合作为宏观云需求和资本约束样本
+
+Oracle 的 SEC 披露显示云收入占比持续提升，但 OCI 的 MW、PUE、项目 capex 和债务成本不够透明。补充资料中的 Stargate、Bloom Energy SOFC、GPU 利用率和大型站点交付时间线，可以用于说明 hyperscaler 也面临相同逻辑：
+
+```text
+AI demand strong
+→ Data center and power infrastructure capex surge
+→ Financing pressure and project prioritization
+→ Revenue ramp depends on delivery timing
+```
+
+因此 ORCL 在本文中的最佳定位不是微观 ROI 样本，而是证明“AI 数据中心投资已经从算力采购问题升级为电力、资本和交付能力问题”。
+
+### 8.6 数据证据等级
+
+为了让分析更严谨，建议全文采用三层证据等级：
+
+| 等级 | 来源 | 使用方式 |
+|---|---|---|
+| Level 1 | SEC 10-K、10-Q、20-F、6-K、material contracts | 作为正式财务和合同事实 |
+| Level 2 | 公司公告、投资者演示、业绩会文字稿 | 作为运营数据和管理层指引 |
+| Level 3 | Citi、Morgan Stanley、Goldman Sachs、Jefferies 等卖方模型 | 作为估算参数和情景假设 |
+
+本文的主模型应以 Level 1 为财务锚，以 Level 2 / Level 3 补足 MW、PUE、Capex/MW 和项目时间线。
+
+---
+
+## 9. 下一步数据清单
 
 为了把本文从框架分析推进到量化模型，需要继续补充：
 
 | 数据 | 优先级 | 来源建议 | 用途 |
 |---|---|---|---|
-| Project IT MW / critical load | 高 | 公司披露、项目公告、地方许可、电网文件 | 计算 capex/MW 和 revenue/MW |
-| Capex breakdown | 高 | SEC footnotes、investor presentation、company transcripts | 拆分 electrical / cooling / GPU / building |
+| Project IT MW / critical load | 高 | 公司披露、项目公告、地方许可、电网文件、卖方模型 | 计算 capex/MW 和 revenue/MW |
+| Capex breakdown | 高 | SEC footnotes、investor presentation、company transcripts、卖方模型 | 拆分 electrical / cooling / GPU / building |
 | Equipment price and lead time | 高 | 供应商、行业数据库、采购数据 | 量化设备瓶颈对 NPV 的影响 |
-| Contract price | 高 | SEC material contracts、customer agreements、industry pricing | 估算 revenue |
-| Power price | 高 | PPA、电价数据库、utility tariff | 估算 opex |
+| Contract price | 高 | SEC material contracts、customer agreements、industry pricing、卖方模型 | 估算 revenue |
+| Power price | 高 | PPA、电价数据库、utility tariff、项目公告 | 估算 opex |
 | Financing terms | 高 | SEC debt footnotes、credit agreements、notes indentures | 估算 WACC / interest sensitivity |
 | Utilization ramp | 中 | management guidance、peer comparison | 估算 revenue ramp |
 | PUE / cooling efficiency | 中 | sustainability report、technical disclosure | 估算电力成本 |
 
 ---
 
-## 9. 可引用的 SEC 来源清单
+## 10. 可引用的 SEC 来源清单
 
 - CoreWeave FY2025 Form 10-K: <https://www.sec.gov/Archives/edgar/data/1769628/000176962826000104/crwv-20251231.htm>
 - CoreWeave Q1 2026 Form 10-Q: <https://www.sec.gov/Archives/edgar/data/1769628/000176962826000222/crwv-20260331.htm>
@@ -375,4 +473,3 @@ SEC filings 提供了这个判断的财务证据：CoreWeave 体现高 capex / �
 - Nebius FY2025 Form 20-F: <https://www.sec.gov/Archives/edgar/data/1513845/000110465926052948/nbis-20251231x20f.htm>
 - Nebius Q1 2026 Form 6-K: <https://www.sec.gov/Archives/edgar/data/1513845/000110465926064092/nbis-20260331x6k.htm>
 - Oracle FY2026 Form 10-K: <https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm>
-
